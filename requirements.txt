@@ -1,0 +1,15 @@
+# Core Framework & Web Server
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+
+# Numerical & ML Frameworks
+numpy>=1.26.0
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.40.0
+pillow>=10.0.0
+
+# OpenUSD & Vector DB Integration
+usd-core>=24.0
+opensearch-py>=2.4.0
