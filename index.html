@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USD Vector Search Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --panel-bg: rgba(22, 26, 33, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-color: #76b900;
+            --accent-glow: rgba(118, 185, 0, 0.25);
+            --text-main: #f0f4f8;
+            --text-muted: #8c9ba5;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem;
+            background-image: radial-gradient(circle at 50% 0%, rgba(118, 185, 0, 0.08), transparent 45%);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0aab2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.9rem 1.2rem;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 0.9rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .file-label:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .btn-search {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .btn-search:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(118, 185, 0, 0.4);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-img {
+            width: 100%;
+            height: 200px;
+            background: #181d24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            position: relative;
+        }
+
+        .score-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.2rem;
+        }
+
+        .card-path {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .card-caption {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>USD Multimodal Vector Search</h1>
+        <p>Powered by SigLIP2 (1152-d) & OpenUSD Asset Indexing</p>
+    </div>
+
+    <form class="search-container" id="searchForm">
+        <div class="input-group">
+            <input type="text" id="queryInput" placeholder="Describe 3D asset (e.g. 'industrial robot arm', 'storage rack')...">
+        </div>
+        <label class="file-label">
+            📁 <span id="fileLabelText">Ref Image</span>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        </label>
+        <button type="submit" class="btn-search">Search</button>
+    </form>
+
+    <div class="grid" id="resultsGrid">
+        <!-- Result Cards Render Dynamically -->
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const queryInput = document.getElementById('queryInput');
+        const imageInput = document.getElementById('imageInput');
+        const fileLabelText = document.getElementById('fileLabelText');
+        const resultsGrid = document.getElementById('resultsGrid');
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileLabelText.textContent = e.target.files[0].name.substring(0, 12) + '...';
+            }
+        });
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            if (queryInput.value) formData.append('query', queryInput.value);
+            if (imageInput.files[0]) formData.append('image', imageInput.files[0]);
+
+            resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Encoding query vector with SigLIP2...</p>';
+
+            try {
+                const res = await fetch('http://localhost:8000/api/search', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                renderResults(data.results || []);
+            } catch (err) {
+                resultsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #ff5555;">Search Error: ${err.message}</p>`;
+            }
+        });
+
+        function renderResults(results) {
+            if (results.length === 0) {
+                resultsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No matching 3D USD assets found.</p>';
+                return;
+            }
+            resultsGrid.innerHTML = results.map(item => `
+                <div class="card">
+                    <div class="card-img">
+                        <span class="score-badge">${(item.score * 100).toFixed(1)}% Match</span>
+                        ${item.thumbnail_url 
+                            ? `<img src="${item.thumbnail_url}" alt="${item.caption}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                            : '📦 3D Render Snapshot'}
+                    </div>
+                    <div class="card-body">
+                        <div class="card-path">${item.usd_path}</div>
+                        <div class="card-caption">${item.caption}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
